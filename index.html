@@ -18,18 +18,28 @@
         let typedArray = new Uint8Array(responseBuffer, 0, responseBuffer.byteLength);
         // Array.from(binaryArray
         let binaryArray = Array.prototype.slice.call(typedArray);
-        console.log(Array.from(binaryArray));
         generateBox(binaryArray, 4, binaryArray.length);
       })();
 
       function generateBox(arr, startIndex, lastIndex){
+        let dataIndex = undefined;
         const boxTypeConstant = ['moof', 'mfhd', 'traf', 'tfhd', 'trun', 'uuid', 'mdat'];
         for(let i = startIndex; i < lastIndex; i++){
           let boxType = String.fromCharCode(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
           if (boxTypeConstant.includes(boxType)) {
               console.log(`Found box of type ${boxType} and size ${arr[i - 1]}`);
+              if(boxType === "mdat") {
+                console.log(arr[i - 1], arr[i - 2], arr[i - 3], arr[i - 4]);
+                dataIndex = i + 4;
+              }
           }
         }
+        let data = ""
+        do {
+          data += String.fromCharCode(arr[dataIndex]);
+          if(dataIndex >= lastIndex) break;
+        }while(dataIndex++)
+        console.log(data);
       }
     })
 </script>
