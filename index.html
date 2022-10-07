@@ -14,14 +14,23 @@
        (async function() {
         let res = await fetch(mp4Url);
         console.log(`Successfully Loaded file ${mp4Url}`);
-        let buffer = await res.arrayBuffer();
-        let abc = new Uint8Array(buffer, 0, buffer.byteLength);
-        console.log(abc);
-        
-        // for(let i = 0; i < abc.length; i++){
-        //   console.log(String.fromCharCode(109, 111, 111, 102));
-        // }
+        let responseBuffer = await res.arrayBuffer();
+        let typedArray = new Uint8Array(responseBuffer, 0, responseBuffer.byteLength);
+        // Array.from(binaryArray
+        let binaryArray = Array.prototype.slice.call(typedArray);
+        console.log(Array.from(binaryArray));
+        generateBox(binaryArray, 4, binaryArray.length);
       })();
+
+      function generateBox(arr, startIndex, lastIndex){
+        const boxTypeConstant = ['moof', 'mfhd', 'traf', 'tfhd', 'trun', 'uuid', 'mdat'];
+        for(let i = startIndex; i < lastIndex; i++){
+          let boxType = String.fromCharCode(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
+          if (boxTypeConstant.includes(boxType)) {
+              console.log(`Found box of type ${boxType} and size ${arr[i - 1]}`);
+          }
+        }
+      }
     })
 </script>
 </html>
