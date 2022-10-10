@@ -2,11 +2,22 @@
 <html>
 <head>
   <title>> castlabs</title>
+  <style>
+    .img {
+      background: lightblue;
+      width: 500px;
+      margin-right: 5px;
+      display: block;
+      float: left;
+    }
+  </style>
 </head>
 <body>
 
 <h1>castlabs - exercise</h1>
-
+<div id="img1" class="img"></div>
+<div id="img2" class="img"></div>
+<div id="img3" class="img"></div>
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", function(){
@@ -16,7 +27,7 @@
         console.log(`Successfully Loaded file ${mp4Url}`);
         let responseBuffer = await res.arrayBuffer();
         let typedArray = new Uint8Array(responseBuffer, 0, responseBuffer.byteLength);
-        // Array.from(binaryArray
+        // Array.from(binaryArray or [...typedArray]
         let binaryArray = Array.prototype.slice.call(typedArray);
         generateBox(binaryArray, 4, binaryArray.length);
       })();
@@ -29,7 +40,6 @@
           if (boxTypeConstant.includes(boxType)) {
               console.log(`Found box of type ${boxType} and size ${arr[i - 1]}`);
               if(boxType === "mdat") {
-                console.log(arr[i - 1], arr[i - 2], arr[i - 3], arr[i - 4]);
                 dataIndex = i + 4;
               }
           }
@@ -39,7 +49,29 @@
           data += String.fromCharCode(arr[dataIndex]);
           if(dataIndex >= lastIndex) break;
         }while(dataIndex++)
+ 
         console.log(data);
+
+        let metaDataTag = data.substr(data.lastIndexOf('<metadata>'), data.lastIndexOf('</metadata>'));
+        metaDataTag = metaDataTag.split(/\r?\n/g);
+
+        const images = new Map([
+          [1,metaDataTag[2]],
+          [2,metaDataTag[5]],
+          [3,metaDataTag[8]]
+        ]);
+        for(const [i, baseUrl] of images) {
+          let img = new Image();
+          img.src = `data:image/png;base64,${baseUrl}`;
+          img.width  = "500";
+          img.height = "500";
+          document.querySelector(`#img${i}`).appendChild(img);
+        }
+
+      };
+  
+      function parseXml(xmlStr) {
+        return new window.DOMParser().parseFromString(xmlStr, "text/html");
       }
     })
 </script>
