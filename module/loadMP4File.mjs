@@ -33,7 +33,7 @@ export function generateBox(arr) {
         for (let i = startIndex; i < lastIndex; i++) {
             let boxType = String.fromCharCode(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
             if (boxTypeConstant.includes(boxType)) {
-                console.log(`Found box of type ${boxType} and size ${arr[i - 1]}`);
+                console.log(`Found box of type ${boxType} and size ${arr[i - 1] + arr[i - 2] + arr[i - 3] + arr[i - 4]}`);
                 if (boxType === "mdat") {
                     dataIndex = i + 4;
                 }
@@ -69,7 +69,7 @@ export function generateData(arr, dataIndex) {
 /**
  * Description. This function takes arr & dataIndex as a param to get data of MDAT box.
  * @param {array} arr  This should be a binary array data.
- * @param {number} dataIndex  This should be a index number of data. At this point we will start reading
+ * @param {number} dataIndex  This should be an index number of data. At this point we will start reading
  * data for MDAT box.
  * @return {data}     Return data from MDAT box.
  */
