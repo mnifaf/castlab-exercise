@@ -19,60 +19,84 @@
 <div id="img2" class="img"></div>
 <div id="img3" class="img"></div>
 </body>
-<script>
-    document.addEventListener("DOMContentLoaded", function(){
-      let mp4Url = "https://demo.castlabs.com/tmp/text0.mp4";
-       (async function() {
-        let res = await fetch(mp4Url);
-        console.log(`Successfully Loaded file ${mp4Url}`);
-        let responseBuffer = await res.arrayBuffer();
-        let typedArray = new Uint8Array(responseBuffer, 0, responseBuffer.byteLength);
-        // Array.from(binaryArray or [...typedArray]
-        let binaryArray = Array.prototype.slice.call(typedArray);
-        generateBox(binaryArray, 4, binaryArray.length);
-      })();
+<script >
+  document.addEventListener("DOMContentLoaded", function() {
+      const MP4_URL = "https://demo.castlabs.com/tmp/text0.mp4";
 
-      function generateBox(arr, startIndex, lastIndex){
-        let dataIndex = undefined;
-        const boxTypeConstant = ['moof', 'mfhd', 'traf', 'tfhd', 'trun', 'uuid', 'mdat'];
-        for(let i = startIndex; i < lastIndex; i++){
-          let boxType = String.fromCharCode(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
-          if (boxTypeConstant.includes(boxType)) {
-              console.log(`Found box of type ${boxType} and size ${arr[i - 1]}`);
-              if(boxType === "mdat") {
-                dataIndex = i + 4;
+      async function fetchDecodeDataFromMP4Containter(url) {
+          let res = await fetch(url);
+          console.log(`Successfully Loaded file ${url}`);
+          let responseBuffer = await res.arrayBuffer();
+          let typedArray = new Uint8Array(responseBuffer, 0, responseBuffer.byteLength);
+          // Array.from(binaryArray or [...typedArray]
+          let binaryArray = Array.prototype.slice.call(typedArray);
+          return binaryArray;
+      }
+
+      function generateBox(arr) {
+          let dataIndex = undefined;
+          const lastIndex = arr.length;
+          const startIndex = 4;
+          const boxTypeConstant = ['moof', 'mfhd', 'traf', 'tfhd', 'trun', 'uuid', 'mdat'];
+          for (let i = startIndex; i < lastIndex; i++) {
+              let boxType = String.fromCharCode(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
+              if (boxTypeConstant.includes(boxType)) {
+                  console.log(`Found box of type ${boxType} and size ${arr[i - 1]}`);
+                  if (boxType === "mdat") {
+                      dataIndex = i + 4;
+                  }
               }
           }
-        }
-        let data = ""
-        do {
-          data += String.fromCharCode(arr[dataIndex]);
-          if(dataIndex >= lastIndex) break;
-        }while(dataIndex++)
- 
-        console.log(data);
-
-        let metaDataTag = data.substr(data.lastIndexOf('<metadata>'), data.lastIndexOf('</metadata>'));
-        metaDataTag = metaDataTag.split(/\r?\n/g);
-
-        const images = new Map([
-          [1,metaDataTag[2]],
-          [2,metaDataTag[5]],
-          [3,metaDataTag[8]]
-        ]);
-        for(const [i, baseUrl] of images) {
-          let img = new Image();
-          img.src = `data:image/png;base64,${baseUrl}`;
-          img.width  = "500";
-          img.height = "500";
-          document.querySelector(`#img${i}`).appendChild(img);
-        }
-
+          return [arr, dataIndex];
       };
-  
-      function parseXml(xmlStr) {
-        return new window.DOMParser().parseFromString(xmlStr, "text/html");
+
+      function generateData(arr, dataIndex) {
+          let data = ""
+          do {
+              data += String.fromCharCode(arr[dataIndex]);
+              if (dataIndex >= arr.length) break;
+          } while (dataIndex++)
+          console.log(data);
+          return data;
       }
-    })
+
+      function generateImages(data) {
+          let metaDataTag = data.substr(data.lastIndexOf('<metadata>'), data.lastIndexOf('</metadata>'));
+          metaDataTag = metaDataTag.split(/\r?\n/g);
+
+          const images = new Map([
+              [1, metaDataTag[2]],
+              [2, metaDataTag[5]],
+              [3, metaDataTag[8]]
+          ]);
+          return images;
+      }
+
+      function displayImages(images) {
+          for (const [i, baseUrl] of images) {
+              Promise
+              let img = new Image();
+              img.src = `data:image/png;base64,${baseUrl}`;
+              img.width = "500";
+              img.height = "500";
+              document.querySelector(`#img${i}`).appendChild(img);
+          }
+      }
+
+      function parseXml(xmlStr) {
+          return new window.DOMParser().parseFromString(xmlStr, "text/html");
+      }
+
+      async function main() {
+          let binaryDataSet = await fetchDecodeDataFromMP4Containter(MP4_URL);
+          const [arr, dataIndex] = generateBox(binaryDataSet);
+          const dataOfMDAT = generateData(arr, dataIndex);
+          const imagesCollection = generateImages(dataOfMDAT);
+          displayImages(imagesCollection);
+      }
+
+      // start program
+      main();
+  }) 
 </script>
 </html>
