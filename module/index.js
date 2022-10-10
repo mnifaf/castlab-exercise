@@ -1,5 +1,11 @@
-import {fetchDecodeDataFromMP4Container, generateBox, generateData, generateImages, displayImages} from "./loadMP4File.mjs";
-const MP4_URL = "https://demo.castlabs.com/tmp/text0.mp4";
+import {
+    fetchDecodeDataFromMP4Container,
+    generateBox,
+    generateData,
+    generateImages,
+    displayImages
+} from "./loadMP4File.mjs";
+import {MP4_URL} from "./constants.mjs";
 
 async function main() {
     let binaryDataSet = await fetchDecodeDataFromMP4Container(MP4_URL);
