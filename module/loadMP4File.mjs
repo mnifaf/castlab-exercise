@@ -6,13 +6,17 @@
  * @return {array}    array contains binary data.
  */
 export async function fetchDecodeDataFromMP4Container(url) {
-    let res = await fetch(url);
-    console.log(`Successfully Loaded file ${url}`);
-    let responseBuffer = await res.arrayBuffer();
-    let typedArray = new Uint8Array(responseBuffer, 0, responseBuffer.byteLength);
-    // Array.from(binaryArray or [...typedArray]
-    let binaryArray = Array.prototype.slice.call(typedArray);
-    return binaryArray;
+    try {
+        let res = await fetch(url);
+        console.log(`Successfully Loaded file ${url}`);
+        let responseBuffer = await res.arrayBuffer();
+        let typedArray = new Uint8Array(responseBuffer, 0, responseBuffer.byteLength);
+        // Array.from(binaryArray or [...typedArray]
+        let binaryArray = Array.prototype.slice.call(typedArray);
+        return binaryArray;
+    }catch (e) {
+        throw e;
+    }
 }
 
 /**
@@ -21,20 +25,24 @@ export async function fetchDecodeDataFromMP4Container(url) {
  * @return {array}     Return array and MDAT data index.
  */
 export function generateBox(arr) {
-    let dataIndex = undefined;
-    const lastIndex = arr.length;
-    const startIndex = 4;
-    const boxTypeConstant = ['moof', 'mfhd', 'traf', 'tfhd', 'trun', 'uuid', 'mdat'];
-    for (let i = startIndex; i < lastIndex; i++) {
-        let boxType = String.fromCharCode(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
-        if (boxTypeConstant.includes(boxType)) {
-            console.log(`Found box of type ${boxType} and size ${arr[i - 1]}`);
-            if (boxType === "mdat") {
-                dataIndex = i + 4;
+    try {
+        let dataIndex = undefined;
+        const lastIndex = arr.length;
+        const startIndex = 4;
+        const boxTypeConstant = ['moof', 'mfhd', 'traf', 'tfhd', 'trun', 'uuid', 'mdat'];
+        for (let i = startIndex; i < lastIndex; i++) {
+            let boxType = String.fromCharCode(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
+            if (boxTypeConstant.includes(boxType)) {
+                console.log(`Found box of type ${boxType} and size ${arr[i - 1]}`);
+                if (boxType === "mdat") {
+                    dataIndex = i + 4;
+                }
             }
         }
+        return [arr, dataIndex];
+    }catch (e) {
+        throw e;
     }
-    return [arr, dataIndex];
 }
 
 /**
@@ -45,13 +53,17 @@ export function generateBox(arr) {
  * @return {string}     Return data from MDAT box.
  */
 export function generateData(arr, dataIndex) {
-    let data = ""
-    do {
-        data += String.fromCharCode(arr[dataIndex]);
-        if (dataIndex >= arr.length) break;
-    } while (dataIndex++)
-    console.log(data);
-    return data;
+    try {
+        let data = ""
+        do {
+            data += String.fromCharCode(arr[dataIndex]);
+            if (dataIndex >= arr.length) break;
+        } while (dataIndex++)
+        console.log(data);
+        return data;
+    }catch (e) {
+        throw e;
+    }
 }
 
 /**
@@ -62,15 +74,20 @@ export function generateData(arr, dataIndex) {
  * @return {data}     Return data from MDAT box.
  */
 export function generateImages(data) {
-    let metaDataTag = data.substr(data.lastIndexOf('<metadata>'), data.lastIndexOf('</metadata>'));
-    metaDataTag = metaDataTag.split(/\r?\n/g);
+    try{
+        let metaDataTag = data.substr(data.lastIndexOf('<metadata>'), data.lastIndexOf('</metadata>'));
+        metaDataTag = metaDataTag.split(/\r?\n/g);
 
-    const images = new Map([
-        [1, metaDataTag[2]],
-        [2, metaDataTag[5]],
-        [3, metaDataTag[8]]
-    ]);
-    return images;
+        const images = new Map([
+            [1, metaDataTag[2]],
+            [2, metaDataTag[5]],
+            [3, metaDataTag[8]]
+        ]);
+        return images;
+    }catch (e) {
+        throw e;
+    }
+
 }
 
 export     /**
