@@ -21,6 +21,7 @@ export async function fetchDecodeDataFromMP4Container(url) {
 
 /**
  * Description. This function will take first 4 byte of new box to calculate size of box.
+ * this fun first create a new buffer and then they convert bug to hex number to calculate actual byte
  * @arr {array} arr  Using reset operator we have a new array of first four byte.
  * @return {number}  return decimal number
  */
