@@ -11,6 +11,7 @@ And modules can't be load without `live-server`.
 # Project Folder/File Structure
 We have `index.html`. This is the starting point. Then we have a folder `module`. This `module` folder contains multiple core JavaScript modules.
 `module/index.js` is the main file that will import other modules, and we have two more modules. First is `module/constants` and second is `module/loadMPFFiles`.
+In this `module/loadMPFFiles` module we have calculating box size, determine type or data.
 # How To Run Assignment 
 Since we are using Module, browsers are unable to run project without a server.
 ```bash

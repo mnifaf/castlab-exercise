@@ -20,6 +20,19 @@ export async function fetchDecodeDataFromMP4Container(url) {
 }
 
 /**
+ * Description. This function will take first 4 byte of new box to calculate size of box.
+ * @arr {array} arr  Using reset operator we have a new array of first four byte.
+ * @return {number}  return decimal number
+ */
+function calculateSize(...arr){
+    let newBuffer = new Uint8Array([ arr[0] , arr[1] , arr[2] , arr[3] ]).buffer;
+    newBuffer = [...new Uint8Array(newBuffer)]
+        .map(x => x.toString(16).padStart(2, '0'))
+        .join('');
+    return parseInt(newBuffer, 16);
+}
+
+/**
  * Description. This function take arr as a param. Then iterate throw the array to display size and box type.
  * @param {array} arr  This should be a binary array data.
  * @return {array}     Return array and MDAT data index.
@@ -33,7 +46,7 @@ export function generateBox(arr) {
         for (let i = startIndex; i < lastIndex; i++) {
             let boxType = String.fromCharCode(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]);
             if (boxTypeConstant.includes(boxType)) {
-                console.log(`Found box of type ${boxType} and size ${arr[i - 1] + arr[i - 2] + arr[i - 3] + arr[i - 4]}`);
+                console.log(`Found box of type ${boxType} and size ${calculateSize(arr[i - 4] , arr[i - 3] , arr[i - 2] , arr[i - 1])}`);
                 if (boxType === "mdat") {
                     dataIndex = i + 4;
                 }
