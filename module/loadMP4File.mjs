@@ -57,8 +57,8 @@ export function generateData(arr, dataIndex) {
         let data = ""
         do {
             data += String.fromCharCode(arr[dataIndex]);
-            if (dataIndex >= arr.length) break;
-        } while (dataIndex++)
+            dataIndex++;
+        } while (arr.length >= dataIndex)
         console.log(data);
         return data;
     }catch (e) {
